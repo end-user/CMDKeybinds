@@ -48,14 +48,13 @@ public class ModMenuIntegration implements ModMenuApi {
     private static SubItem buildNewMacro(ConfigSection configSection, int macroNum) {
         ConfigOptions.ConfigMacro macro = CmdKeybindMod.getConfig().macros.get(macroNum);
         SubItem macroSub = (SubItem) new SubItem(new LiteralText(macro.command)).setToolTip(new LiteralText(macro.keyName));
-        macroSub.addConfigItem(new TextItem(new TranslatableText("key.cmdkeybind.config.macro.command"), macro.command, "/").setSaveConsumer(cmd -> macro.command = cmd));
+        macroSub.addConfigItem(new TextItem(new TranslatableText("key.cmdkeybind.config.macro.command"), macro.command, "/").setMaxLength(1024).setSaveConsumer(cmd -> macro.command = cmd));
         macroSub.addConfigItem(new KeybindItem(new TranslatableText("key.cmdkeybind.config.macro.key"), macro.keyName, InputUtil.Type.KEYSYM.createFromCode(GLFW.GLFW_KEY_KP_0).getTranslationKey()).setSaveConsumer(key -> macro.keyName = key));
         macroSub.addConfigItem(new KeybindItem(new TranslatableText("key.cmdkeybind.config.macro.keymod"), macro.keyModName, InputUtil.UNKNOWN_KEY.getTranslationKey()).setSaveConsumer(key -> macro.keyModName = key));
         macroSub.addConfigItem(new EnumItem<>(new TranslatableText("key.cmdkeybind.config.macrotype"), BaseMacro.MacroType.values(), macro.macroType, BaseMacro.MacroType.SingleUse).setSaveConsumer(val -> macro.macroType = val));
         macroSub.addConfigItem(new IntegerItem(new TranslatableText("key.cmdkeybind.config.delay"), macro.delay, 0).setSaveConsumer(val -> macro.delay = val));
         macroSub.addConfigItem(new ButtonItem(new TranslatableText("key.cmdkeybind.config.remove")).setClickEvent(() -> {
             CmdKeybindMod.getConfig().macros.remove(macro);
-            //configSection.removeConfigItem(macroNum + 1);
             configSection.configs.remove(macroSub);
         }));
         return macroSub;
