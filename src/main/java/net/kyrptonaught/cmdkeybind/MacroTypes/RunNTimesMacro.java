@@ -2,26 +2,42 @@ package net.kyrptonaught.cmdkeybind.MacroTypes;
 
 import net.minecraft.client.network.ClientPlayerEntity;
 
-public class RepeatingMacro extends BaseMacro {
+public class RunNTimesMacro extends BaseMacro {
     private final int delay;
     private long sysTimePressed = 0;
     private long currentTime;
 
-    public RepeatingMacro(String key, String keyMod, String command, int delay) {
+    private final int totalRuns;
+    private int runsLeft = 0;
+    private boolean isRepeating = false;
+
+    public RunNTimesMacro(String key, String keyMod, String command, int delay, int totalRuns) {
         super(key, keyMod, command);
         this.delay = delay;
+        this.totalRuns = totalRuns;
     }
 
     @Override
     public void tick(long hndl, ClientPlayerEntity player, long currentTime) {
-        super.tick(hndl, player, currentTime);
         this.currentTime = currentTime;
-        if (wasPressed()) {
-            if (canExecute())
-                execute(player);
-        } else {
+
+        if (!isRepeating && wasPressed()) {
+            isRepeating = true;
+            runsLeft = totalRuns;
             sysTimePressed = 0;
         }
+
+        if (isRepeating) {
+            if (canExecute()) {
+                if (runsLeft > 0) {
+                    execute(player);
+                    runsLeft--;
+                } else if (!wasPressed) {
+                    isRepeating = false;
+                }
+            }
+        }
+        super.tick(hndl, player, currentTime);
     }
 
     protected boolean canExecute() {
